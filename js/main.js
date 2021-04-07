@@ -25,7 +25,8 @@ connectButton.onclick = async () => {
   if(!arConnectInstalled) return window.open("https://arconnect.io");
   try {
     // connect to ArConnect with permissions and app info
-    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES"]);
+    // !!app info is not available in ArConnect 0.2.2!!
+    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES"], { name: "Super Cool App", logo: "https://verto.exchange/logo_dark.svg" });
 
     await loadData();
   } catch {
