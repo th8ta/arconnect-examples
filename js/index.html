@@ -3,6 +3,11 @@
   <head>
     <title>ArConnect Example</title>
     <script src="https://unpkg.com/arweave/bundles/web.bundle.js"></script>
+    <style>
+      .visible-on-connect {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <h1 style="text-align: center">
@@ -16,9 +21,10 @@
     <div id="userinfo" style="margin: 0 auto; width: max-content"></div>
     <br>
     <br>
-    <button id="createTX" style="display: none; margin: 0 auto;">Create and sign transaction</button>
-    <button id="encrypt" style="display: none; margin: 0 auto;">Encrypt / decrypt</button>
-    <button id="disconnect" style="display: none; margin: 0 auto;">Log out</button>
+    <button id="createTX" style="margin: 0 auto;" class="visible-on-connect">Create and sign transaction</button>
+    <button id="encrypt" style="margin: 0 auto;" class="visible-on-connect">Encrypt / decrypt</button>
+    <button id="signature" style="margin: 0 auto;" class="visible-on-connect">Signature</button>
+    <button id="disconnect" style="margin: 0 auto;" class="visible-on-connect">Log out</button>
 
     <script src="./main.js"></script>
   </body>

@@ -6,6 +6,7 @@ const currentAddressElement = document.querySelector("#address");
 const disconnectButton = document.querySelector("#disconnect");
 const createTXButton = document.querySelector("#createTX");
 const encryptButton = document.querySelector("#encrypt");
+const signatureButton = document.querySelector("#signature");
 
 // wait for the ArConnect script to be injected into the window object
 window.addEventListener("arweaveWalletLoaded", async () => {
@@ -28,7 +29,7 @@ connectButton.onclick = async () => {
   try {
     // connect to ArConnect with permissions and app info
     // !!app info is not available in ArConnect 0.2.2!!
-    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES", "SIGN_TRANSACTION", "ENCRYPT", "DECRYPT"], { name: "Super Cool App", logo: "https://verto.exchange/logo_dark.svg" });
+    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES", "SIGN_TRANSACTION", "ENCRYPT", "DECRYPT", "SIGNATURE"], { name: "Super Cool App", logo: "https://verto.exchange/logo_dark.svg" });
 
     await loadData();
   } catch {
@@ -44,9 +45,11 @@ disconnectButton.onclick = async () => {
   connectButton.style.display = "block";
   
   // hide disconnect and tx button
-  disconnect.style.display = "none";
-  createTXButton.style.display = "none";
-  encryptButton.style.display = "none";
+  const toSetVisible = document.getElementsByClassName("visible-on-connect");
+
+  for (const el of toSetVisible) {
+    el.style.display = "none";
+  }
 
   // remove user data
   userinfo.innerHTML = "";
@@ -64,8 +67,17 @@ createTXButton.onclick = async () => {
 
   console.log("TX created: \n", tx);
 
-  await window.arweaveWallet.sign(tx);
+  await arweave.transactions.sign(tx);
   console.log("TX signed: \n", tx);
+
+  let uploader = await arweave.transactions.getUploader(tx);
+
+  while (!uploader.isComplete) {
+    await uploader.uploadChunk();
+    console.log(`${uploader.pctComplete}% complete, ${uploader.uploadedChunks}/${uploader.totalChunks}`);
+  }
+
+  console.log("Tx uploaded", tx.id);
 };
 
 encryptButton.onclick = async () => {
@@ -86,6 +98,16 @@ encryptButton.onclick = async () => {
   console.log("Decrypted:", res);
 };
 
+signatureButton.onclick = async () => {
+  // sign
+  const signature = await window.arweaveWallet.signature(new TextEncoder().encode("Data to sign"), {
+    name: 'RSA-PSS',
+    saltLength: 0,
+  });
+
+  console.log("Signature is:", signature);
+};
+
 // load userinfo from ArConnect
 async function loadData() {
   // get the currently selected wallet's address from ArConnect
@@ -98,9 +120,11 @@ async function loadData() {
   connectButton.style.display = "none";
 
   // show disconnect and create tx button
-  disconnect.style.display = "block";
-  createTXButton.style.display = "block";
-  encryptButton.style.display = "block";
+  const toSetVisible = document.getElementsByClassName("visible-on-connect");
+
+  for (const el of toSetVisible) {
+    el.style.display = "block";
+  }
 
   // fill data in html
   userinfo.innerHTML = `
