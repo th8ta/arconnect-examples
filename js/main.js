@@ -5,6 +5,7 @@ const userinfo = document.querySelector("#userinfo");
 const currentAddressElement = document.querySelector("#address");
 const disconnectButton = document.querySelector("#disconnect");
 const createTXButton = document.querySelector("#createTX");
+const dispatchButton = document.querySelector("#dispatch");
 const encryptButton = document.querySelector("#encrypt");
 const signatureButton = document.querySelector("#signature");
 
@@ -78,6 +79,23 @@ createTXButton.onclick = async () => {
   }
 
   console.log("Tx uploaded", tx.id);
+};
+
+dispatchButton.onclick = async () => {
+  const arweave = Arweave.init();
+  const tx = await arweave.createTransaction({
+    data: "test"
+  });
+
+  tx.addTag("Content-Type", "text/plain")
+  tx.addTag("App-Name", "SmartWeaveAction");
+  tx.addTag("App-Version", "0.3.0");
+  tx.addTag("Contract", "d2DK6QGY_YBJxuR2bkLzgMWGbqUjvS1nTe53rPDSzSE");
+  tx.addTag("Input", '{"function":"mint"}');
+
+  const res = await window.arweaveWallet.dispatch(tx);
+
+  console.log("Tx dispatched:", res);
 };
 
 encryptButton.onclick = async () => {
