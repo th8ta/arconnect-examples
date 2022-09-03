@@ -29,7 +29,7 @@ connectButton.onclick = async () => {
   try {
     // connect to ArConnect with permissions and app info
     // !!app info is not available in ArConnect 0.2.2!!
-    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES", "SIGN_TRANSACTION", "ENCRYPT", "DECRYPT", "SIGNATURE"], { name: "Super Cool App", logo: "https://verto.exchange/logo_dark.svg" });
+    await window.arweaveWallet.connect(["ACCESS_ADDRESS", "ACCESS_ALL_ADDRESSES", "SIGN_TRANSACTION", "ENCRYPT", "DECRYPT", "SIGNATURE", "ACCESS_ARWEAVE_CONFIG", "ACCESS_PUBLIC_KEY", "DISPATCH"], { name: "Super Cool App", logo: "https://verto.exchange/logo_dark.svg" });
 
     await loadData();
   } catch {
@@ -126,12 +126,30 @@ async function loadData() {
     el.style.display = "block";
   }
 
+  // get wallet names
+  const walletNames = await window.arweaveWallet.getWalletNames();
+
+  // get permissions
+  const perms = await window.arweaveWallet.getPermissions();
+
+  // get gateway info
+  const config = await window.arweaveWallet.getArweaveConfig();
+
+  // public key
+  const publicKey = await window.arweaveWallet.getActivePublicKey();
+
   // fill data in html
   userinfo.innerHTML = `
     Addresses added to ArConnect:
     <br />
     <br />
-    ${addresses.join("<br/>")}
+    ${addresses.join("<br />")}
+    <br /><br />Wallet names:<br /><br />
+    ${Object.values(walletNames).join("<br />")}
+    <br /><br />Permissions:<br /><br />
+    ${perms.join("<br />")}
+    <br /><br />Gateway: ${config.protocol}://${config.host}:${config.port}<br /><br />
+    Public key: ${publicKey}<br />
   `;
 
   // fill current address element
